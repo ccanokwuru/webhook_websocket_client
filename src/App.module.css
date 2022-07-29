@@ -1,22 +1,69 @@
 .App {
   text-align: center;
+  display:  flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: fixed;
+  width: 100vw;
+}
+
+.main{
+  flex-grow: 1;
+  padding: 1.5rem 0;
+}
+
+.listContainer{
+  margin-top: 2rem;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap:.3rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+}
+
+.mainBtnContainer{
+  display: flex;
+  justify-content: center;
+  gap: .9rem;
+}
+
+.btn{
+  padding: .5rem;
+  outline: none;
+  border: none;
+  border-radius: .5rem;
+  font-weight: bold;
+}
+
+.actionBtn{
+  padding: .3rem;
+  outline: none;
+  border: none;
+  border-radius: .5rem;
+  font-weight: bold;
+  background-color: transparent;
+  cursor: pointer;
 }
 
 .logo {
   animation: logo-spin infinite 20s linear;
-  height: 40vmin;
+  height: 7vmin;
   pointer-events: none;
 }
 
+.logofooter {
+  height: 5vmin;
+}
+
 .header {
-  background-color: #282c34;
-  min-height: 100vh;
+  padding: .3rem .2rem;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   font-size: calc(10px + 2vmin);
   color: white;
+  border-bottom: 1px solid #b318f0;
 }
 
 .link {
