@@ -1,4 +1,6 @@
 import { Component, createSignal, onMount } from "solid-js";
+import { createStore } from "solid-js/store";
+
 import { Switch, Match } from "solid-js";
 
 import type { MatchProps } from "solid-js";
@@ -7,30 +9,35 @@ import { For } from "solid-js";
 import logo from "./logo.svg";
 import styles from "./App.module.css";
 import { api } from "./api/api";
+import { generateId } from "./utils/idUtil";
 
 const state = {
   list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
   active: "home",
 };
 const [active, setActive] = createSignal("");
+const [userId, setUserId] = createSignal("");
 const [email, setEmail] = createSignal("");
 const [msg, setMsg] = createSignal("");
 const [to, setTo] = createSignal("");
 const [list, setList] = createSignal([0]);
 
-const [socket, setSocket] = createSignal(
-  new WebSocket(`ws://${api}/websocket`)
-);
+const [socket, setSocket] = createSignal<WebSocket>();
+const [umail, setUmail] = createSignal("");
 
-const connnectToSocket = () => {
+const connnectToSocket = (user?: string, id?: string) => {
   const ws = new WebSocket(`ws://${api}/websocket`);
 
   ws.onopen = () => {
-    ws.send(JSON.stringify({ mail: "hello" }));
+    console.log("Realtime");
+    id = id ? id : generateId();
+    setUserId(id);
+    ws.send(JSON.stringify({ user, id: id }));
   };
 
   ws.onmessage = (e) => {
     const msg = e.data;
+    console.log("Realtime message");
     console.log(msg);
   };
 
@@ -40,7 +47,7 @@ const connnectToSocket = () => {
   };
 
   ws.onerror = (err) => {
-    console.log("Realtime error");
+    console.log(err);
     ws.close();
   };
 
@@ -50,8 +57,34 @@ const connnectToSocket = () => {
 onMount(() => {
   setActive(state.active);
   setList(state.list);
-  connnectToSocket();
 });
+
+if (!umail().length && socket())
+  // @ts-ignore
+  socket().close();
+
+const login = (e: SubmitEvent) => {
+  e.preventDefault();
+  setUmail(email());
+  console.log("connecting realtime");
+  if (!socket()) {
+    connnectToSocket(umail());
+  } else {
+    connnectToSocket(umail(), userId());
+  }
+};
+
+const send = async (e: SubmitEvent) => {
+  e.preventDefault();
+  const emailData = JSON.stringify({ to: to(), message: msg() });
+  await fetch(`http://${api}/webhook/email`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: emailData,
+  });
+};
 
 const App: Component = () => {
   return (
@@ -61,7 +94,16 @@ const App: Component = () => {
           <img src={logo} class={styles.logo} alt="logo" />
         </button>
         <h4>WEBHOOK + WEBSOCKET</h4>
-        <input type="email" name="email" id="email" />
+        <form onSubmit={login}>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            class={styles.btn}
+            value={email()}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+          />
+        </form>
         <button
           onClick={() => setActive("notifications")}
           class={styles.actionBtn}

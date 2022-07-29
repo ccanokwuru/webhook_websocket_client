@@ -59,6 +59,7 @@
 .header {
   padding: .3rem .2rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-around;
   font-size: calc(10px + 2vmin);
