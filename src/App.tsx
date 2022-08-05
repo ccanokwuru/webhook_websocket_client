@@ -75,7 +75,7 @@ const login = (e: SubmitEvent) => {
 // const sendMail = async (e: SubmitEvent) => {
 //   e.preventDefault();
 //   const emailData = JSON.stringify({ to: to(), message: msg() });
-//   await fetch(`http://${api}/webhook/email`, {
+//   await fetch(`https://${api}/webhook/email`, {
 //     method: "POST",
 //     headers: {
 //       "content-type": "application/json",
@@ -87,7 +87,7 @@ const login = (e: SubmitEvent) => {
 // const sendBeep = async (e: SubmitEvent) => {
 //   e.preventDefault();
 //   const notifyData = JSON.stringify({ userId: userId() });
-//   await fetch(`http://${api}/webhook/notify`, {
+//   await fetch(`https://${api}/webhook/notify`, {
 //     method: "POST",
 //     headers: {
 //       "content-type": "application/json",
