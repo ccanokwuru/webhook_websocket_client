@@ -11,11 +11,7 @@ import styles from "./App.module.css";
 import { api } from "./api/api";
 import { generateId } from "./utils/idUtil";
 
-const state = {
-  list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
-  active: "home",
-};
-const [active, setActive] = createSignal("");
+const [active, setActive] = createSignal("home");
 const [userId, setUserId] = createSignal("");
 const [email, setEmail] = createSignal("");
 const [msg, setMsg] = createSignal("");
@@ -50,8 +46,6 @@ const connnectToSocket = () => {
   return setSocket(ws);
 };
 onMount(async () => {
-  setActive(state.active);
-  setList(state.list);
   setUserId(generateId());
 
   setSocket(connnectToSocket());
