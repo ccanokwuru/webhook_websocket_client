@@ -20,7 +20,7 @@ const [userId, setUserId] = createSignal("");
 const [email, setEmail] = createSignal("");
 const [msg, setMsg] = createSignal("");
 const [to, setTo] = createSignal("");
-const [list, setList] = createSignal([0]);
+const [list, setList] = createSignal<any[]>([]);
 
 const [socket, setSocket] = createSignal<WebSocket>();
 const [umail, setUmail] = createSignal("");
@@ -35,7 +35,7 @@ const connnectToSocket = () => {
   };
 
   ws.onmessage = (msg) => {
-    console.log(JSON.parse(msg.data));
+    setList([...list(), msg]);
   };
 
   ws.onerror = (err) => {
