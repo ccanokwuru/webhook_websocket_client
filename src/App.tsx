@@ -32,7 +32,7 @@ const connnectToSocket = () => {
   };
 
   ws.onmessage = (msg) => {
-    setList([...list(), msg]);
+    setList([...list(), JSON.parse(msg.data)]);
   };
 
   ws.onerror = (err) => {
@@ -59,7 +59,7 @@ const login = (e: SubmitEvent) => {
   socket()?.send(
     JSON.stringify({
       meta: "broadcast",
-      payload: JSON.stringify({ id: userId(), user: umail() }),
+      payload: { id: userId(), user: umail() },
     })
   );
 };
@@ -126,7 +126,14 @@ const App: Component = () => {
             {/* notifications */}
             <section class={styles.listContainer}>
               <For each={list()} fallback={<div>Loading...</div>}>
-                {(item) => <div>{item}</div>}
+                {(item) => (
+                  <div>
+                    <div>{item.source}</div>
+                    <For each={item.payload} fallback={<div>none</div>}>
+                      {(i) => <>{i}</>}
+                    </For>
+                  </div>
+                )}
               </For>
             </section>
           </Match>
