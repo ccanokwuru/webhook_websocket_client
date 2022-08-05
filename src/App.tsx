@@ -22,7 +22,7 @@ const [socket, setSocket] = createSignal<WebSocket>();
 const [umail, setUmail] = createSignal("");
 
 const connnectToSocket = () => {
-  const ws = new WebSocket(`ws://${api}/websocket`);
+  const ws = new WebSocket(`ws://${api}/realtime`);
 
   ws.onopen = () => {
     console.log("connecting realtime");
@@ -32,22 +32,27 @@ const connnectToSocket = () => {
   };
 
   ws.onmessage = (msg) => {
-    setList([...list(), JSON.parse(msg.data)]);
+    const data = JSON.parse(msg.data);
+    console.log(data);
+    data?.data ? setList([...list(), data.data]) : null;
   };
 
   ws.onerror = (err) => {
-    console.log(err);
     ws.close();
   };
 
   ws.onclose = (e) => {
-    setTimeout(() => connnectToSocket(), 1000);
+    setTimeout(() => {
+      console.log("reconnecting realtime");
+      connnectToSocket();
+    }, 1e3);
   };
 
   return setSocket(ws);
 };
+
 onMount(async () => {
-  setSocket(connnectToSocket());
+  connnectToSocket();
 });
 
 const login = (e: SubmitEvent) => {
@@ -64,29 +69,35 @@ const login = (e: SubmitEvent) => {
   );
 };
 
-// const sendMail = async (e: SubmitEvent) => {
-//   e.preventDefault();
-//   const emailData = JSON.stringify({ to: to(), message: msg() });
-//   await fetch(`https://${api}/webhook/email`, {
-//     method: "POST",
-//     headers: {
-//       "content-type": "application/json",
-//     },
-//     body: emailData,
-//   });
-// };
+const sendMail = async (e: SubmitEvent) => {
+  e.preventDefault();
+  const emailData = JSON.stringify({ to: to(), message: msg() });
+  await fetch(`https://${api}/webhook/email`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: emailData,
+  });
+};
 
-// const sendBeep = async (e: SubmitEvent) => {
-//   e.preventDefault();
-//   const notifyData = JSON.stringify({ userId: userId() });
-//   await fetch(`https://${api}/webhook/notify`, {
-//     method: "POST",
-//     headers: {
-//       "content-type": "application/json",
-//     },
-//     body: notifyData,
-//   });
-// };
+const sendBeep = async (e: Event) => {
+  const notifyData = JSON.stringify({
+    destination: "all",
+    // userId: userId(),
+    // email: umail(),
+    message: "I am beeping",
+  });
+  // socket()?.close();
+  await fetch(`https://${api}/webhook/notify`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: notifyData,
+  });
+  // connnectToSocket();
+};
 
 const App: Component = () => {
   return (
@@ -115,8 +126,12 @@ const App: Component = () => {
       </header>
       <main class={styles.main}>
         <div class={styles.mainBtnContainer}>
-          <button class={styles.btn}>SEND MAIL</button>
-          <button class={styles.btn}>SEND BEEP</button>
+          <button class={styles.btn} disabled={!umail()}>
+            SEND MAIL
+          </button>
+          <button class={styles.btn} disabled={!umail()} onClick={sendBeep}>
+            SEND BEEP
+          </button>
         </div>
         {/* routing */}
         <Switch fallback={<div>Not Found</div>}>
@@ -130,7 +145,7 @@ const App: Component = () => {
                   <div>
                     <div>{item.source}</div>
                     <For each={item.payload} fallback={<div>none</div>}>
-                      {(i) => <>{i}</>}
+                      {(i) => <>{JSON.stringify(i)}</>}
                     </For>
                   </div>
                 )}
