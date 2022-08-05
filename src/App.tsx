@@ -58,6 +58,8 @@ onMount(async () => {
 const login = (e: SubmitEvent) => {
   e.preventDefault();
 
+  if (!socket()) connnectToSocket();
+
   setUmail(email());
 
   if (!umail().length) return;
@@ -69,8 +71,9 @@ const login = (e: SubmitEvent) => {
   );
 };
 
-const sendMail = async (e: SubmitEvent) => {
-  e.preventDefault();
+const sendMail = async (e: Event) => {
+  if (!socket()) connnectToSocket();
+
   const emailData = JSON.stringify({ to: to(), message: msg() });
   await fetch(`https://${api}/webhook/email`, {
     method: "POST",
@@ -82,6 +85,8 @@ const sendMail = async (e: SubmitEvent) => {
 };
 
 const sendBeep = async (e: Event) => {
+  if (!socket()) connnectToSocket();
+
   const notifyData = JSON.stringify({
     destination: "all",
     // userId: userId(),
