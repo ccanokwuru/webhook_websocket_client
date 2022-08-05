@@ -49,11 +49,8 @@
 .logo {
   animation: logo-spin infinite 20s linear;
   height: 7vmin;
+  min-width: 30px !important;
   pointer-events: none;
-}
-
-.logofooter {
-  height: 5vmin;
 }
 
 .header {

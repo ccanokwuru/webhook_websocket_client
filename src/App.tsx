@@ -25,25 +25,17 @@ const [list, setList] = createSignal([0]);
 const [socket, setSocket] = createSignal<WebSocket>();
 const [umail, setUmail] = createSignal("");
 
-const connnectToSocket = (user?: string, id?: string) => {
+const connnectToSocket = () => {
   const ws = new WebSocket(`ws://${api}/websocket`);
 
   ws.onopen = () => {
-    console.log("Realtime");
-    id = id ? id : generateId();
+    const id = userId().length ? userId() : generateId();
     setUserId(id);
-    ws.send(JSON.stringify({ user, id: id }));
+    ws.send(JSON.stringify({ meta: "join", payload: JSON.stringify({ id }) }));
   };
 
-  ws.onmessage = (e) => {
-    const msg = e.data;
-    console.log("Realtime message");
-    console.log(msg);
-  };
-
-  ws.onclose = (e) => {
-    console.log("Realtime reconnecting");
-    setTimeout(() => connnectToSocket(), 1000);
+  ws.onmessage = (msg) => {
+    console.log(JSON.parse(msg.data));
   };
 
   ws.onerror = (err) => {
@@ -51,40 +43,58 @@ const connnectToSocket = (user?: string, id?: string) => {
     ws.close();
   };
 
+  ws.onclose = (e) => {
+    setTimeout(() => connnectToSocket(), 1000);
+  };
+
   return setSocket(ws);
 };
-
-onMount(() => {
+onMount(async () => {
   setActive(state.active);
   setList(state.list);
-});
+  setUserId(generateId());
 
-if (!umail().length && socket())
-  // @ts-ignore
-  socket().close();
+  setSocket(connnectToSocket());
+});
 
 const login = (e: SubmitEvent) => {
   e.preventDefault();
+
   setUmail(email());
   console.log("connecting realtime");
-  if (!socket()) {
-    connnectToSocket(umail());
-  } else {
-    connnectToSocket(umail(), userId());
-  }
+
+  if (!umail().length) return;
+  socket()?.send(
+    JSON.stringify({
+      meta: "broadcast",
+      payload: JSON.stringify({ id: userId(), user: umail() }),
+    })
+  );
 };
 
-const send = async (e: SubmitEvent) => {
-  e.preventDefault();
-  const emailData = JSON.stringify({ to: to(), message: msg() });
-  await fetch(`http://${api}/webhook/email`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: emailData,
-  });
-};
+// const sendMail = async (e: SubmitEvent) => {
+//   e.preventDefault();
+//   const emailData = JSON.stringify({ to: to(), message: msg() });
+//   await fetch(`http://${api}/webhook/email`, {
+//     method: "POST",
+//     headers: {
+//       "content-type": "application/json",
+//     },
+//     body: emailData,
+//   });
+// };
+
+// const sendBeep = async (e: SubmitEvent) => {
+//   e.preventDefault();
+//   const notifyData = JSON.stringify({ userId: userId() });
+//   await fetch(`http://${api}/webhook/notify`, {
+//     method: "POST",
+//     headers: {
+//       "content-type": "application/json",
+//     },
+//     body: notifyData,
+//   });
+// };
 
 const App: Component = () => {
   return (
