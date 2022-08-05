@@ -25,6 +25,7 @@ const connnectToSocket = () => {
   const ws = new WebSocket(`ws://${api}/websocket`);
 
   ws.onopen = () => {
+    console.log("connecting realtime");
     const id = userId().length ? userId() : generateId();
     setUserId(id);
     ws.send(JSON.stringify({ meta: "join", payload: JSON.stringify({ id }) }));
@@ -46,8 +47,6 @@ const connnectToSocket = () => {
   return setSocket(ws);
 };
 onMount(async () => {
-  setUserId(generateId());
-
   setSocket(connnectToSocket());
 });
 
@@ -55,7 +54,6 @@ const login = (e: SubmitEvent) => {
   e.preventDefault();
 
   setUmail(email());
-  console.log("connecting realtime");
 
   if (!umail().length) return;
   socket()?.send(
