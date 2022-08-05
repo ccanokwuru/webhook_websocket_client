@@ -71,18 +71,18 @@ const login = (e: SubmitEvent) => {
   );
 };
 
-const sendMail = async (e: Event) => {
-  if (!socket()) connnectToSocket();
+// const sendMail = async (e: Event) => {
+//   if (!socket()) connnectToSocket();
 
-  const emailData = JSON.stringify({ to: to(), message: msg() });
-  await fetch(`https://${api}/webhook/email`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: emailData,
-  });
-};
+//   const emailData = JSON.stringify({ to: to(), message: msg() });
+//   await fetch(`https://${api}/webhook/email`, {
+//     method: "POST",
+//     headers: {
+//       "content-type": "application/json",
+//     },
+//     body: emailData,
+//   });
+// };
 
 const sendBeep = async (e: Event) => {
   if (!socket()) connnectToSocket();
